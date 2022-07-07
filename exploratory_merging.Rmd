@@ -1,0 +1,28 @@
+---
+title: "exploratory_merging"
+output: html_document
+---
+
+```{r}
+county_demographics_cleanish
+sti_infections
+```
+```{r}
+simplified_demo <- county_demographics_cleanish %>%
+  mutate(county = str_remove(county, pattern = "\\\\")) %>%
+  mutate(county = str_replace_all(county, "�", "n")) %>% # removing special character
+  mutate(state = if_else(is.na(state), "DC", state)) %>% # adding DC as a state for county = district of columbia
+  mutate(county = if_else(county == "petersburg borough", "petersburg census area", county)) %>%
+  distinct(county, state) 
+
+
+simplified_sti <- sti_infections %>%
+  mutate(county = if_else(county == "doña ana county", "dona ana county", county)) %>%
+  distinct(county, state)
+
+anti_join(simplified_sti, simplified_demo, by = c("county", "state")) # reveal counties not in demo data 
+```
+
+how to combine rows? 
+- copper river and chugach where split from valdez cordova in 2019
+- skagway left hoonah angoon county in 2007

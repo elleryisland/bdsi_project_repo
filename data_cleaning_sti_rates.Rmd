@@ -1,0 +1,143 @@
+---
+title: "data_cleaning_sti_rates"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+gonorrhea <- read_csv("/Users/elleryisland/Desktop/bdsi_project/raw_data/gonorrhea.csv", 
+    skip = 4)
+```
+
+```{r}
+chlamydia <- read_csv("/Users/elleryisland/Desktop/bdsi_project/raw_data/chlamydia.csv", 
+    skip = 4)
+View(chlamydia)
+```
+
+```{r}
+syphilis <- read_csv("/Users/elleryisland/Desktop/bdsi_project/raw_data/syphilis.csv", 
+    skip = 4)
+```
+
+
+```{r}
+gonorrhea_clean <- gonorrhea %>%
+  filter(Indicator == "Gonorrhea") %>% # filtering to just gonorrhea cases
+  rename(sti = Indicator, # changing variable names
+         year = Year,
+         county = Geography,
+         fips = FIPS, 
+         cases_gon = Cases,
+         rate_gon = `Rate per 100000`) %>%
+  separate(county, # separate country and state variable into two variables
+           into = c("county", "state"), 
+           sep = "\\,") %>%
+  mutate(sti = str_to_lower(sti), # making everything lowercase
+         county = str_to_lower(county)) %>%
+  separate(year, # separating year variable into two
+           into = c("year", "extra"),
+           sep = "([[:space:]])") %>%
+  select(-extra, -sti) %>% 
+  mutate(year = str_trim(year),
+         county = str_trim(county),
+         state = str_trim(state),
+         fips = str_trim(fips),
+         cases_gon = str_trim(cases_gon),
+         rate_gon = str_trim(rate_gon)) %>%
+  mutate(cases_gon = str_remove(cases_gon, pattern = "\\,")) %>% # removing commas from case numbers
+  mutate(across(c(cases_gon, rate_gon), na_if, "Data not available")) %>%
+  mutate(year = as.numeric(year),
+         fips = as.numeric(fips),
+         cases_gon = as.numeric(cases_gon),
+         rate_gon = as.numeric(rate_gon)) 
+  
+```
+
+```{r}
+chlamydia_clean <- chlamydia %>%
+  rename(sti = Indicator, # changing variable names
+         year = Year,
+         county = Geography,
+         fips = FIPS, 
+         cases_chl = Cases,
+         rate_chl = `Rate per 100000`) %>%
+  separate(county, # separate country and state variable into two variables
+           into = c("county", "state"), 
+           sep = "\\,") %>%
+  mutate(sti = str_to_lower(sti), # making everything lowercase
+         county = str_to_lower(county)) %>%
+  separate(year, # separating year variable into two
+           into = c("year", "extra"),
+           sep = "([[:space:]])") %>%
+  select(-extra, -sti) %>% 
+  mutate(year = str_trim(year),
+         county = str_trim(county),
+         state = str_trim(state)) %>%
+  mutate(across(c(cases_chl, rate_chl), na_if, "Data not available")) %>%
+  mutate(year = as.numeric(year),
+         fips = as.numeric(fips),
+         cases_chl = as.numeric(cases_chl),
+         rate_chl = as.numeric(rate_chl)) 
+```
+
+```{r}
+syphilis_clean <- syphilis %>%
+  rename(sti = Indicator, # changing variable names
+         year = Year,
+         county = Geography,
+         fips = FIPS, 
+         cases_syp = Cases,
+         rate_syp = `Rate per 100000`) %>%
+  separate(county, # separate country and state variable into two variables
+           into = c("county", "state"), 
+           sep = "\\,") %>%
+  mutate(sti = str_to_lower(sti), # making everything lowercase
+         county = str_to_lower(county)) %>%
+  separate(year, # separating year variable into two (in order to get rid of string after 2020)
+           into = c("year", "extra"),
+           sep = "([[:space:]])") %>%
+  select(-extra, -sti) %>% # removing the 'extra' variable 
+  mutate(year = str_trim(year),
+         county = str_trim(county),
+         state = str_trim(state)) %>%
+  mutate(across(c(cases_syp, rate_syp), na_if, "Data not available")) %>%
+  mutate(year = as.numeric(year),
+         fips = as.numeric(fips),
+         cases_syp = as.numeric(cases_syp),
+         rate_syp = as.numeric(rate_syp)) 
+```
+
+```{r}
+join_intermediate <- left_join(gonorrhea_clean, chlamydia_clean, by = c("fips", "year", "county", "state"))
+
+sti_infections <- left_join(join_intermediate, syphilis_clean, by = c("fips", "year", "county", "state")) %>%
+                    filter(state != "PR") 
+
+```
+
+```{r}
+sti_infections %>%
+  group_by(year) %>%
+  summarize(total_cases_gon = sum(cases_gon, na.rm = TRUE),
+            total_cases_chl = sum(cases_chl, na.rm = TRUE),
+            total_cases_syp = sum(cases_syp, na.rm = TRUE)) %>%
+  ggplot() +
+    geom_line(aes(x = year, y = total_cases_gon), color = "darkgoldenrod1", size = 2) +
+    geom_line(aes(x = year, y = total_cases_syp), color = "brown", size = 2) +
+    geom_line(aes(x = year, y = total_cases_chl), color = "tomato2", size = 2) +
+  theme_bw() +
+  labs(x = NULL, y = "Total Cases")
+```
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,57 @@
+---
+title: "data_clean_demographics"
+output: html_document
+---
+
+```{r}
+library(tidyr)
+```
+
+```{r}
+county_demographics <- read_csv("/Users/elleryisland/Desktop/bdsi_project/raw_data/county_demographics.csv")
+View(county_demographics)
+```
+
+```{r}
+county_demographics_cleanish <- county_demographics %>%
+  rename(state = STNAME, # renaming
+         county = CTYNAME, 
+         year = YEAR,
+         # age_group = AGEGRP,
+         # pop_total = TOT_POP,
+         # male_total = TOT_MALE,
+         # female_total = TOT_FEMALE,
+         # male_white = WA_MALE,
+         # female_white = WA_FEMALE,
+         # male_black = BA_MALE,
+         # female_black = BA_FEMALE,
+         # male_native = IA_MALE,
+         # female_native = IA_FEMALE,
+         # male_asian = AA_MALE,
+         # female_asian = AA_FEMALE,
+         # male_islander = NA_MALE,
+         # female_islander = NA_FEMALE,
+         # male_multiracial = TOM_MALE,
+         # female_multiracial = TOM_FEMALE
+         ) %>%
+  mutate(sti = str_to_lower(state), # making everything lowercase
+         county = str_to_lower(county)) %>%
+  filter(year != c("census_2010", "pop_est_base_2010")) %>%
+  group_by(year, county, state) %>% # collapsing age groups
+  summarize(across(c(TOT_POP:NHBAC_FEMALE), sum)) %>%
+  mutate(state = state.abb[match(state, state.name)]) %>% # changing state names to abbreviations
+  filter(year > 2)  %>% # removing extra 2010 data
+  ungroup()
+  # recode(year,  c(`2010` = 3,
+  #               `2011` = 4,
+  #               `2012` = 5,
+  #               `2013` = 6,
+  #               `2014` = 7,
+  #               `2015` = 8,
+  #               `2016` = 9,
+  #               `2017` = 10,
+  #               `2018` = 11,
+  #               `2019` = 12))
+  
+```
+
