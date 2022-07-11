@@ -1,0 +1,55 @@
+---
+title: '2015'
+author: "Totti Bushell"
+date: '2022-07-07'
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(magrittr)
+```
+
+## R Markdown
+
+```{r Reading}
+
+POV_15 <- read.csv("/Users/totti/Desktop/povertydata/2015.csv")
+
+```
+
+
+## Cleaning 
+
+```{r}
+POV2_15 <- POV_15 %>%
+  
+  select(-Persistent.Poverty.1989.1999.2015, 
+         -Population_poverty_1989, 
+         -Population_poverty_1999, 
+         -Poverty_rate_1989, 
+         -Poverty_rate_1999, 
+         -Location_Type) %>% 
+  
+  slice(-c(1:51)) %>% 
+  
+  rename(County = AREA, 
+         Total_POV15 = X2015_SAIPE_Poverty, 
+         Total_POVpercent15 = Poverty_Rate_2015)
+  
+
+  
+POV2_15
+
+```
+
+
+
+
+
+```
+
+
+

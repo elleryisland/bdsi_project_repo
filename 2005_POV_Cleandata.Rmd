@@ -1,0 +1,72 @@
+---
+title: "2005 cleaning"
+author: "Totti Bushell"
+date: '2022-07-06'
+output: html_document
+---
+
+```{r }
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(magrittr)
+```
+
+## R Markdown
+
+```{r reading in 2005 povertydata}
+
+POV_05 <- read.csv("/Users/totti/Desktop/povertydata/2005.csv")
+
+View(POV_05)
+
+```
+
+
+```{r Cleaning }
+
+POV2_05 <- POV_05 %>% 
+  select(-CI_Lower, 
+         -CI_Upper, 
+         -CI_Lower1, 
+         -CI_Upper1, 
+         -CI_Lower2, 
+         -CI_Upper2, 
+         -CI_Lower3, 
+         -CI_Upper3, 
+         -CI_Lower4, 
+         -CI_Upper4, 
+         -CI_Lower5, 
+         -CI_Upper5, 
+         -CI_Lower6, 
+         -CI_Upper6, 
+         -CI_Lower7, 
+         -CI_Upper7, 
+         -CI_Lower8, 
+         -CI_Upper8, 
+         -Poverty_Age_18, 
+         -Poverty_Percent, 
+         -Poverty_Estimate, 
+         -Poverty_Ages, 
+         -Median_Income, 
+         -Poverty_Ages4, 
+         -Percent_Ages4) %>%
+  
+  slice(-c(1,2)) %>%
+  
+  unite("FIPS", State_FIPS:County_FIPS) %>%
+  
+  rename(State = Postal, 
+         Total_POV05 = Poverty_Estimate_All_Ages, 
+         Total_POVpercent05 = Poverty_Percent_All_Ages,
+         County = Name) #%>%
+
+POV2_05
+
+ # View()
+```
+
+
+
+
+

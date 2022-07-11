@@ -1,0 +1,104 @@
+---
+title: "Data cleaning"
+author: "Totti Bushell"
+date: '2022-07-05'
+output: html_document
+---
+
+```
+```
+
+## Poverty dataset cleaning 
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(magrittr)
+library(stringr) 
+```
+
+```{r reading in 2000 povertydata}
+data1 <- read.csv("/Users/totti/Desktop/povertydata/2000.csv")
+View(data1)
+```
+
+```{r Cleaning 2000 data}
+
+POV2000 <- data1 %>%
+  
+  rename(Total_POV00 = Below_poverty_level,
+         Tot_POVpercent00 = Percent_below.,
+         FIPS = Codes) %>%
+  
+  select(-State_Rate, 
+         -Poverty.status)%>%
+  
+  drop_na() %>%
+  
+  relocate(FIPS, .before = State) 
+
+```
+
+```{r Merging All Data}
+POV2000 <- POV2000 %>% mutate(County = trimws(as.character(County)), 
+                              State = trimws(State))
+
+POV2_05 <- POV2_05 %>% mutate(County = trimws(as.character(County)),
+                              State = trimws(State)) 
+
+join1 <- left_join(POV2000,POV2_05,by=c("County", "State")) 
+
+
+POV2_15 <- POV2_15 %>% mutate(County = trimws(as.character(County)), 
+                              State = trimws(State)) 
+
+join2 <-  left_join(join1,POV2_15,by=c("County", "State")) 
+
+POV2_20 <- POV2_20 %>% mutate(County = trimws(as.character(County)), 
+                             State = trimws(State))
+
+join3 <-  left_join(join2,POV2_20,by=c("County", "State")) 
+
+  
+POV2_10 <- POV2_10 %>% mutate(County = trimws(as.character(County)), 
+                              State = trimws(State))
+
+join4 <-  left_join(join3, POV2_10,by=c("County","State")) 
+  
+join4
+```
+
+
+```{r Shaping up Merged Data}
+
+MergedData <- join4 %>%
+  
+select(-FIPS.y,
+       -FIPS.x.x, 
+       -FIPS_code, 
+       -FIPS.y.y) %>%
+
+rename( FIPS = FIPS.x, 
+        TotalPOV_00 = Total_POV00,
+        TotalPCT_00 = Tot_POVpercent00, 
+        TotalPOV_05 = Total_POV05,
+        TotalPCT_05 = Total_POVpercent05, 
+        TotalPOV_15 = Total_POV15, 
+        TotalPCT_15 = Total_POVpercent15, 
+        TotalPOV_20 = Total_POV20, 
+        TotalPCT_20 = Total_POVpercent20,
+        TotalPOV_10 = Total_POV10, 
+        TotalPCT_10 = Total_POVpercent10) %>%
+  
+  relocate(TotalPOV_10, .after = TotalPCT_05) %>%
+  relocate(TotalPCT_10, .after = TotalPOV_10)%>%
+
+  slice(-c(68:94)) #deleting of AK
+
+
+MergedData
+  
+```
+

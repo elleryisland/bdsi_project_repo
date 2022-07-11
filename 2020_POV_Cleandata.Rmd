@@ -1,0 +1,67 @@
+---
+title: '2020'
+author: "Totti Bushell"
+date: '2022-07-07'
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(magrittr)
+```
+
+
+```{r }
+POV_20 <- read.csv("/Users/totti/Desktop/povertydata/2020.csv")
+
+```
+
+
+
+
+```{r }
+
+POV2_20 <- POV_20 %>% 
+   select(-Rural.urban_Continuum_Code_2003, 
+          -Rural.urban_Continuum_Code_2013, 
+          -Urban_Influence_Code_2003, 
+          -Urban_Influence_Code_2013, 
+          -CI90LBALL_2020, 
+          -CI90UBALL_2020, 
+          -CI90LBALLP_2020, 
+          -CI90UBALLP_2020,
+          -POV017_2020,
+          -CI90LB017_2020, 
+          -CI90UB017_2020, 
+          -PCTPOV017_2020,
+          -CI90LB017P_2020, 
+          -CI90UB017P_2020, 
+          -POV517_2020, 
+          -CI90LB517_2020, 
+          -CI90UB517_2020,
+          -PCTPOV517_2020, 
+          -CI90LB517P_2020, 
+          -CI90UB517P_2020, 
+          -MEDHHINC_2020, 
+          -CI90LBINC_2020, 
+          -CI90UBINC_2020, 
+          -POV04_2020, 
+          -CI90LB04_2020, 
+          -CI90UB04_2020, 
+          -PCTPOV04_2020, 
+          -CI90LB04P_2020, 
+          -CI90UB04P_2020)%>%
+         
+  slice(-c(1,2)) %>%
+  
+  rename(Total_POV20 = POVALL_2020, 
+         Total_POVpercent20 = PCTPOVALL_2020, 
+         County = Area_name, 
+         State = Stabr)
+
+POV2_20
+
+```
+

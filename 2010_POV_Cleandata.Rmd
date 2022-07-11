@@ -1,0 +1,73 @@
+---
+title: '2010'
+author: "Totti Bushell"
+date: '2022-07-07'
+output: html_document
+---
+
+```{r }
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(magrittr)
+```
+
+## R Markdown
+
+```{r reading in 2010 povertydata}
+
+POV_10 <- read.csv("/Users/totti/Desktop/povertydata/2010.csv")
+
+
+```
+
+## Cleaning 
+```{r }
+POV2_10 <- POV_10 %>% 
+  
+  select(-Number, 
+         -Poverty_Rate_1960, 
+         -Poverty_Rate_1970, 
+         -Poverty_Rate_1980,
+         -Poverty_Rate_1990,
+         -Poverty_Rate_2000, 
+         -Population_1960, 
+         -Population_1970, 
+         -Population_1980, 
+         -Population_1990, 
+         -Population_2000, 
+         -Persons_Poverty_1960, 
+         -Persons_Poverty_1970, 
+         -Persons_Poverty_1980, 
+         -Persons_Poverty_1990, 
+         -Persons_Poverty_2000, 
+         -Population_2010) %>% 
+  
+  slice(-c(1,2,70,100,116,192,251,316,320,325,330,398,558,564,609,712,
+           805,905,1011,1132,1197,1214,1239,1254,1338,1426,1509,1625,
+           1682,1776,1794,1805,1827,1861,1924,2025,2079,2168,2246,2283,
+           2351,2357,2404,2471,2567,2822,2852,2867,3002,3042,3098,3171, 68:96)) %>%
+  
+  rename(Total_POVpercent10 = Poverty_Rate_2010, 
+         Total_POV10 = Persons_Poverty_2010) %>%
+  
+   mutate(State = recode(State, Alabama = 'AL', 
+                                Arizona = 'AZ',)) %>%
+  
+  
+  relocate(Total_POVpercent10, .after = last_col()) 
+
+  POV2_10 <- POV2_10 %>% mutate(County = trimws(as.character(County)), 
+                              State = trimws(State)) 
+ 
+  POV2_10$County <- paste(POV2_10$County, 'County', sep=' ')
+  
+
+  
+   View(POV2_10)
+
+```
+
+
+```
+
